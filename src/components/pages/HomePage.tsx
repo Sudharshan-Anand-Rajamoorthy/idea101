@@ -1,12 +1,44 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import HackathonCard from '@/components/HackathonCard';
 import { Button } from '@/components/ui/button';
-import { Sparkles, TrendingUp, Wrench, Users, ArrowRight, Lightbulb, BookOpen, Microscope } from 'lucide-react';
+import { Sparkles, TrendingUp, Wrench, Users, ArrowRight, Lightbulb, BookOpen, Microscope, Zap } from 'lucide-react';
+import { useHackathonStore, type Hackathon } from '@/store/hackathonStore';
+import { hackathonService } from '@/services/hackathonService';
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const [hackathons, setHackathons] = useState<Hackathon[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<'all' | 'virtual' | 'inperson'>('all');
+
+  useEffect(() => {
+    const loadHackathons = async () => {
+      setIsLoading(true);
+      try {
+        const data = await hackathonService.fetchHackathons();
+        const upcoming = hackathonService.getUpcomingHackathons(data);
+        setHackathons(upcoming);
+      } catch (error) {
+        console.error('Failed to load hackathons:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadHackathons();
+  }, []);
+
+  const filteredHackathons = hackathons.filter((h) => {
+    if (selectedDifficulty && h.difficulty !== selectedDifficulty) return false;
+    if (selectedLocation === 'virtual' && !h.isVirtual) return false;
+    if (selectedLocation === 'inperson' && h.isVirtual) return false;
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -195,6 +227,190 @@ export default function HomePage() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Hackathons Section */}
+      <section className="py-24 bg-background">
+        <div className="max-w-[120rem] mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-5xl font-heading text-foreground uppercase mb-6">
+              Upcoming Hackathons
+            </h2>
+            <p className="text-lg font-paragraph text-foreground opacity-80 max-w-3xl mx-auto">
+              Discover and participate in exciting hackathons happening around the world. Build, innovate, and compete for amazing prizes.
+            </p>
+          </motion.div>
+
+          {/* Filters */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="mb-12 flex flex-wrap gap-4 justify-center"
+          >
+            {/* Difficulty Filter */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setSelectedDifficulty(null)}
+                className={`px-4 py-2 text-sm font-heading uppercase tracking-wider border transition-colors ${
+                  selectedDifficulty === null
+                    ? 'bg-secondary text-secondary-foreground border-secondary'
+                    : 'bg-background border-gridline text-foreground hover:border-secondary'
+                }`}
+              >
+                All Levels
+              </button>
+              <button
+                onClick={() => setSelectedDifficulty('beginner')}
+                className={`px-4 py-2 text-sm font-heading uppercase tracking-wider border transition-colors ${
+                  selectedDifficulty === 'beginner'
+                    ? 'bg-green-500/20 text-green-700 border-green-300'
+                    : 'bg-background border-gridline text-foreground hover:border-secondary'
+                }`}
+              >
+                Beginner
+              </button>
+              <button
+                onClick={() => setSelectedDifficulty('intermediate')}
+                className={`px-4 py-2 text-sm font-heading uppercase tracking-wider border transition-colors ${
+                  selectedDifficulty === 'intermediate'
+                    ? 'bg-yellow-500/20 text-yellow-700 border-yellow-300'
+                    : 'bg-background border-gridline text-foreground hover:border-secondary'
+                }`}
+              >
+                Intermediate
+              </button>
+              <button
+                onClick={() => setSelectedDifficulty('advanced')}
+                className={`px-4 py-2 text-sm font-heading uppercase tracking-wider border transition-colors ${
+                  selectedDifficulty === 'advanced'
+                    ? 'bg-red-500/20 text-red-700 border-red-300'
+                    : 'bg-background border-gridline text-foreground hover:border-secondary'
+                }`}
+              >
+                Advanced
+              </button>
+            </div>
+
+            {/* Location Filter */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setSelectedLocation('all')}
+                className={`px-4 py-2 text-sm font-heading uppercase tracking-wider border transition-colors ${
+                  selectedLocation === 'all'
+                    ? 'bg-secondary text-secondary-foreground border-secondary'
+                    : 'bg-background border-gridline text-foreground hover:border-secondary'
+                }`}
+              >
+                All Locations
+              </button>
+              <button
+                onClick={() => setSelectedLocation('virtual')}
+                className={`px-4 py-2 text-sm font-heading uppercase tracking-wider border transition-colors ${
+                  selectedLocation === 'virtual'
+                    ? 'bg-secondary text-secondary-foreground border-secondary'
+                    : 'bg-background border-gridline text-foreground hover:border-secondary'
+                }`}
+              >
+                Virtual
+              </button>
+              <button
+                onClick={() => setSelectedLocation('inperson')}
+                className={`px-4 py-2 text-sm font-heading uppercase tracking-wider border transition-colors ${
+                  selectedLocation === 'inperson'
+                    ? 'bg-secondary text-secondary-foreground border-secondary'
+                    : 'bg-background border-gridline text-foreground hover:border-secondary'
+                }`}
+              >
+                In-Person
+              </button>
+            </div>
+          </motion.div>
+
+          {/* Hackathons Grid */}
+          {isLoading ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-16"
+            >
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                className="inline-block"
+              >
+                <Zap className="h-8 w-8 text-secondary" />
+              </motion.div>
+              <p className="mt-4 text-lg font-paragraph text-foreground opacity-80">
+                Loading hackathons...
+              </p>
+            </motion.div>
+          ) : filteredHackathons.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-primary border border-gridline p-12 text-center"
+            >
+              <p className="text-lg font-paragraph text-primary-foreground opacity-80">
+                No hackathons found matching your filters. Try adjusting your selection.
+              </p>
+            </motion.div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredHackathons.map((hackathon, index) => (
+                <HackathonCard key={hackathon._id} hackathon={hackathon} index={index} />
+              ))}
+            </div>
+          )}
+
+          {/* View All Hackathons Link */}
+          {filteredHackathons.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="mt-16 text-center"
+            >
+              <p className="text-base font-paragraph text-foreground opacity-80 mb-6">
+                Want to see more hackathons? Check out these resources:
+              </p>
+              <div className="flex flex-wrap gap-4 justify-center">
+                <Button
+                  onClick={() => window.open('https://devpost.com/hackathons', '_blank')}
+                  variant="outline"
+                  className="border-gridline text-foreground hover:bg-background"
+                >
+                  DevPost Hackathons
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+                <Button
+                  onClick={() => window.open('https://mlh.io/seasons/2025/events', '_blank')}
+                  variant="outline"
+                  className="border-gridline text-foreground hover:bg-background"
+                >
+                  MLH Events
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+                <Button
+                  onClick={() => window.open('https://hackathon.com', '_blank')}
+                  variant="outline"
+                  className="border-gridline text-foreground hover:bg-background"
+                >
+                  Hackathon.com
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </motion.div>
+          )}
         </div>
       </section>
 
