@@ -3,18 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useEvaluationStore, type EvaluationTrack } from '@/store/evaluationStore';
-import { ArrowLeft, Trash2, ChevronDown, ChevronUp, Lightbulb, BookOpen, Microscope } from 'lucide-react';
+import { ArrowLeft, Trash2, ChevronDown, ChevronUp, Lightbulb, BookOpen, Microscope, Zap } from 'lucide-react';
 
 const trackIcons: Record<EvaluationTrack, React.ComponentType<any>> = {
   startup: Lightbulb,
   project: BookOpen,
   research: Microscope,
+  hackathon: Zap,
 };
 
 const trackLabels: Record<EvaluationTrack, string> = {
   startup: 'Startup Idea',
   project: 'Final-Year Project',
   research: 'PhD Research',
+  hackathon: 'Hackathon Project',
 };
 
 export default function HistoryPage() {

@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useEvaluationStore, type EvaluationTrack } from '@/store/evaluationStore';
-import { Lightbulb, BookOpen, Microscope, ArrowRight } from 'lucide-react';
+import { Lightbulb, BookOpen, Microscope, Zap, ArrowRight } from 'lucide-react';
 
 const tracks = [
   {
@@ -31,6 +31,15 @@ const tracks = [
     icon: Microscope,
     color: 'from-purple-400 to-pink-500',
     metrics: ['Research Novelty', 'Methodology', 'Field Impact', 'Publication Potential'],
+  },
+  {
+    id: 'hackathon' as EvaluationTrack,
+    title: 'Hackathon Ideas',
+    subtitle: 'For Hackers & Builders',
+    description: 'Evaluate your hackathon project concept with focus on creativity, technical implementation, and time-to-delivery.',
+    icon: Zap,
+    color: 'from-green-400 to-emerald-500',
+    metrics: ['Creativity & Innovation', 'Technical Feasibility', 'Time-to-Delivery', 'User Impact'],
   },
 ];
 
@@ -62,7 +71,7 @@ export default function TrackSelectionPage() {
         </motion.div>
 
         {/* Track Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
           {tracks.map((track, index) => (
             <motion.div
               key={track.id}

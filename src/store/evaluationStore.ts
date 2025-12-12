@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type EvaluationTrack = 'startup' | 'project' | 'research';
+export type EvaluationTrack = 'startup' | 'project' | 'research' | 'hackathon';
 
 export interface EvaluationFormData {
   title: string;

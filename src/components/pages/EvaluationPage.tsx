@@ -35,6 +35,15 @@ const trackConfigs = {
       { name: 'targetAudience', label: 'Research Field', placeholder: 'e.g., Computer Science, Environmental Science' },
     ],
   },
+  hackathon: {
+    title: 'Hackathon Project Evaluation',
+    fields: [
+      { name: 'title', label: 'Project Name', placeholder: 'Enter your hackathon project name' },
+      { name: 'description', label: 'Project Description', placeholder: 'Describe your hackathon project, features, and how it solves a problem' },
+      { name: 'targetAudience', label: 'Target Users', placeholder: 'Who will benefit from your project?' },
+      { name: 'keywords', label: 'Technologies Used (Optional)', placeholder: 'e.g., React, Python, Machine Learning, Web3' },
+    ],
+  },
 };
 
 export default function EvaluationPage() {
@@ -241,6 +250,10 @@ function generateStrengths(track: EvaluationTrack, formData: any): string[] {
     strengths.push('Well-defined research scope');
   }
 
+  if (track === 'hackathon' && formData.keywords) {
+    strengths.push('Clear technology stack identified');
+  }
+
   if (strengths.length === 0) {
     strengths.push('Clear problem identification');
   }
@@ -271,6 +284,10 @@ function generateWeaknesses(track: EvaluationTrack, formData: any): string[] {
     weaknesses.push('Research keywords would clarify scope');
   }
 
+  if (track === 'hackathon' && !formData.keywords) {
+    weaknesses.push('Technology stack not specified');
+  }
+
   return weaknesses;
 }
 
@@ -289,6 +306,10 @@ function generateRecommendations(track: EvaluationTrack, formData: any): string[
     recommendations.push('Review related literature and existing research');
     recommendations.push('Define clear research methodology and approach');
     recommendations.push('Identify potential publication venues and impact');
+  } else if (track === 'hackathon') {
+    recommendations.push('Create a detailed project roadmap with clear milestones');
+    recommendations.push('Plan MVP features for the hackathon timeframe');
+    recommendations.push('Prepare a compelling demo and presentation strategy');
   }
 
   return recommendations;
