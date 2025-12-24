@@ -19,7 +19,7 @@ export default {
                 "9xl": ["8rem", { lineHeight: "1", letterSpacing: "0.05em", fontWeight: "900" }],
             },
             fontFamily: {
-                heading: ["rubik-v2", "sans-serif"],
+                heading: ["azeret-mono-v2", "monospace"],
                 paragraph: ["azeret-mono-v2", "monospace"]
             },
             colors: {
