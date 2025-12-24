@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useEvaluationStore, type EvaluationTrack } from '@/store/evaluationStore';
 import { ArrowRight, Sparkles, ArrowLeft } from 'lucide-react';
+import { evaluateIdea } from '@/services/evaluationBackend';
 
 const trackConfigs = {
   startup: {
@@ -88,51 +89,40 @@ export default function EvaluationPage() {
 
     setIsEvaluating(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2500));
+    try {
+      // Call the backend evaluation function
+      const evaluationResult = await evaluateIdea({
+        title: formData.title,
+        description: formData.description,
+        track: selectedTrack,
+        targetAudience: formData.targetAudience,
+        timeline: formData.timeline,
+        budget: formData.budget,
+        keywords: formData.keywords,
+      });
 
-    // Generate scores based on description quality
-    const descLength = formData.description.length;
-    const hasDetails = formData.targetAudience && formData.targetAudience.trim().length > 0;
+      // Create evaluation object with backend results
+      const evaluation = {
+        _id: crypto.randomUUID(),
+        title: formData.title,
+        description: formData.description,
+        track: selectedTrack,
+        scores: evaluationResult.scores,
+        summary: evaluationResult.summary,
+        strengths: evaluationResult.strengths,
+        weaknesses: evaluationResult.weaknesses,
+        recommendations: evaluationResult.recommendations,
+        submissionTimestamp: new Date(),
+      };
 
-    const baseScore = Math.min(10, 5 + (descLength / 100) * 2);
-    const detailBonus = hasDetails ? 1.5 : 0;
-
-    const novelty = Math.min(10, baseScore + detailBonus + (Math.random() * 2 - 1));
-    const marketPotential = Math.min(10, baseScore + (Math.random() * 2 - 1));
-    const technicalFeasibility = Math.min(10, baseScore - 0.5 + (Math.random() * 2 - 1));
-    const impact = Math.min(10, baseScore + detailBonus + (Math.random() * 2 - 1));
-    const overall = (novelty + marketPotential + technicalFeasibility + impact) / 4;
-
-    // Generate insights
-    const strengths = generateStrengths(selectedTrack, formData);
-    const weaknesses = generateWeaknesses(selectedTrack, formData);
-    const recommendations = generateRecommendations(selectedTrack, formData);
-
-    const summary = generateSummary(selectedTrack, overall);
-
-    const evaluation = {
-      _id: crypto.randomUUID(),
-      title: formData.title,
-      description: formData.description,
-      track: selectedTrack,
-      scores: {
-        novelty: Math.round(novelty * 10) / 10,
-        marketPotential: Math.round(marketPotential * 10) / 10,
-        technicalFeasibility: Math.round(technicalFeasibility * 10) / 10,
-        impact: Math.round(impact * 10) / 10,
-        overall: Math.round(overall * 10) / 10,
-      },
-      summary,
-      strengths,
-      weaknesses,
-      recommendations,
-      submissionTimestamp: new Date(),
-    };
-
-    addEvaluation(evaluation);
-    setIsEvaluating(false);
-    navigate('/history');
+      addEvaluation(evaluation);
+      setIsEvaluating(false);
+      navigate('/history');
+    } catch (error) {
+      console.error('Evaluation failed:', error);
+      setIsEvaluating(false);
+      // Optionally show error message to user
+    }
   };
 
   return (
@@ -227,102 +217,4 @@ export default function EvaluationPage() {
   );
 }
 
-function generateStrengths(track: EvaluationTrack, formData: any): string[] {
-  const strengths: string[] = [];
-
-  if (formData.description.length > 200) {
-    strengths.push('Well-detailed concept description');
-  }
-
-  if (formData.targetAudience && formData.targetAudience.trim().length > 0) {
-    strengths.push('Clear target audience identification');
-  }
-
-  if (track === 'startup' && formData.budget) {
-    strengths.push('Realistic budget planning');
-  }
-
-  if (track === 'project' && formData.timeline) {
-    strengths.push('Defined project timeline');
-  }
-
-  if (track === 'research' && formData.keywords) {
-    strengths.push('Well-defined research scope');
-  }
-
-  if (track === 'hackathon' && formData.keywords) {
-    strengths.push('Clear technology stack identified');
-  }
-
-  if (strengths.length === 0) {
-    strengths.push('Clear problem identification');
-  }
-
-  return strengths;
-}
-
-function generateWeaknesses(track: EvaluationTrack, formData: any): string[] {
-  const weaknesses: string[] = [];
-
-  if (formData.description.length < 200) {
-    weaknesses.push('Could provide more detailed description');
-  }
-
-  if (!formData.targetAudience || formData.targetAudience.trim().length === 0) {
-    weaknesses.push('Target audience not clearly defined');
-  }
-
-  if (track === 'startup' && !formData.budget) {
-    weaknesses.push('Budget estimation would strengthen proposal');
-  }
-
-  if (track === 'project' && !formData.timeline) {
-    weaknesses.push('Project timeline not specified');
-  }
-
-  if (track === 'research' && !formData.keywords) {
-    weaknesses.push('Research keywords would clarify scope');
-  }
-
-  if (track === 'hackathon' && !formData.keywords) {
-    weaknesses.push('Technology stack not specified');
-  }
-
-  return weaknesses;
-}
-
-function generateRecommendations(track: EvaluationTrack, formData: any): string[] {
-  const recommendations: string[] = [];
-
-  if (track === 'startup') {
-    recommendations.push('Conduct competitive analysis to identify market gaps');
-    recommendations.push('Develop a detailed go-to-market strategy');
-    recommendations.push('Create financial projections for 3-5 years');
-  } else if (track === 'project') {
-    recommendations.push('Establish clear milestones and deliverables');
-    recommendations.push('Document technical architecture and design decisions');
-    recommendations.push('Plan comprehensive testing and validation strategy');
-  } else if (track === 'research') {
-    recommendations.push('Review related literature and existing research');
-    recommendations.push('Define clear research methodology and approach');
-    recommendations.push('Identify potential publication venues and impact');
-  } else if (track === 'hackathon') {
-    recommendations.push('Create a detailed project roadmap with clear milestones');
-    recommendations.push('Plan MVP features for the hackathon timeframe');
-    recommendations.push('Prepare a compelling demo and presentation strategy');
-  }
-
-  return recommendations;
-}
-
-function generateSummary(track: EvaluationTrack, score: number): string {
-  if (score >= 8) {
-    return `Excellent ${track} idea with strong potential. The concept demonstrates clear innovation and viable execution path. Recommended to proceed with detailed planning and validation.`;
-  } else if (score >= 6.5) {
-    return `Good ${track} idea with solid fundamentals. The concept has merit and shows promise. Consider refining key aspects and conducting deeper analysis before full implementation.`;
-  } else if (score >= 5) {
-    return `Promising ${track} idea requiring further development. The core concept is interesting but needs strengthening in several areas. Focus on addressing identified weaknesses.`;
-  } else {
-    return `${track} idea with potential but significant challenges. Recommend substantial refinement and deeper exploration of the concept before proceeding.`;
-  }
-}
+{/* ... keep existing code (helper functions removed - now handled by backend) ... */}
