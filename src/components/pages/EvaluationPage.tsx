@@ -62,6 +62,7 @@ export default function EvaluationPage() {
   });
 
   const [isEvaluating, setIsEvaluating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!selectedTrack) {
@@ -82,14 +83,17 @@ export default function EvaluationPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
 
     if (!formData.title.trim() || !formData.description.trim()) {
+      setError('Please fill in all required fields');
       return;
     }
 
     setIsEvaluating(true);
 
     try {
+      console.log('Starting evaluation...');
       // Call the backend evaluation function
       const evaluationResult = await evaluateIdea({
         title: formData.title,
@@ -100,6 +104,8 @@ export default function EvaluationPage() {
         budget: formData.budget,
         keywords: formData.keywords,
       });
+
+      console.log('Evaluation completed:', evaluationResult);
 
       // Create evaluation object with backend results
       const evaluation = {
@@ -120,8 +126,8 @@ export default function EvaluationPage() {
       navigate('/history');
     } catch (error) {
       console.error('Evaluation failed:', error);
+      setError(error instanceof Error ? error.message : 'Failed to evaluate idea. Please try again.');
       setIsEvaluating(false);
-      // Optionally show error message to user
     }
   };
 
@@ -158,6 +164,11 @@ export default function EvaluationPage() {
           onSubmit={handleSubmit}
           className="max-w-4xl mx-auto bg-primary border border-gridline p-12"
         >
+          {error && (
+            <div className="mb-8 p-4 bg-destructive text-destructiveforeground rounded">
+              {error}
+            </div>
+          )}
           {config.fields.map((field, index) => (
             <div key={field.name} className="mb-8">
               <label htmlFor={field.name} className="block text-base font-heading text-primary-foreground uppercase mb-4">

@@ -33,6 +33,8 @@ export interface EvaluationResponse {
  */
 export async function evaluateIdea(request: EvaluationRequest): Promise<EvaluationResponse> {
   try {
+    console.log('Sending evaluation request:', request);
+    
     const response = await fetch('/api/evaluate', {
       method: 'POST',
       headers: {
@@ -41,11 +43,16 @@ export async function evaluateIdea(request: EvaluationRequest): Promise<Evaluati
       body: JSON.stringify(request),
     });
 
+    console.log('Response status:', response.status, response.statusText);
+
     if (!response.ok) {
-      throw new Error(`Evaluation failed: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('Response error:', errorText);
+      throw new Error(`Evaluation failed: ${response.statusText} - ${errorText}`);
     }
 
     const data = await response.json();
+    console.log('Evaluation response:', data);
     return data;
   } catch (error) {
     console.error('Evaluation error:', error);
