@@ -250,19 +250,59 @@ function generateSummary(track: string, score: number): string {
  */
 export async function post_evaluate(request: any) {
   try {
-    // Parse request body
-    const body = request.body ? JSON.parse(request.body) : {};
+    // Validate request object exists
+    if (!request) {
+      return badRequest({
+        error: 'Invalid request object',
+      });
+    }
+
+    // Parse request body with error handling
+    let body: any = {};
+    try {
+      if (request.body) {
+        if (typeof request.body === 'string') {
+          body = JSON.parse(request.body);
+        } else if (typeof request.body === 'object') {
+          body = request.body;
+        }
+      }
+    } catch (parseError) {
+      console.error('Request body parsing error:', parseError);
+      return badRequest({
+        error: 'Invalid JSON in request body',
+        details: parseError instanceof Error ? parseError.message : 'Failed to parse request',
+      });
+    }
+
     const evaluationRequest: EvaluationRequest = body;
 
     // Validate required fields
-    if (!evaluationRequest.title || !evaluationRequest.description || !evaluationRequest.track) {
+    if (!evaluationRequest.title || typeof evaluationRequest.title !== 'string' || !evaluationRequest.title.trim()) {
       return badRequest({
-        error: 'Missing required fields: title, description, and track',
+        error: 'Missing or invalid required field: title',
+      });
+    }
+
+    if (!evaluationRequest.description || typeof evaluationRequest.description !== 'string' || !evaluationRequest.description.trim()) {
+      return badRequest({
+        error: 'Missing or invalid required field: description',
+      });
+    }
+
+    if (!evaluationRequest.track || !['startup', 'project', 'research', 'hackathon'].includes(evaluationRequest.track)) {
+      return badRequest({
+        error: 'Missing or invalid required field: track (must be one of: startup, project, research, hackathon)',
       });
     }
 
     // Attempt to use Hugging Face API (optional enhancement)
-    await analyzeWithHuggingFace(evaluationRequest.description);
+    try {
+      await analyzeWithHuggingFace(evaluationRequest.description);
+    } catch (hfError) {
+      console.warn('Hugging Face analysis failed, continuing with fallback:', hfError);
+      // Continue execution - HF is optional
+    }
 
     // Generate evaluation response
     const scores = generateScores(evaluationRequest, evaluationRequest.track);
@@ -282,9 +322,11 @@ export async function post_evaluate(request: any) {
     return ok(response);
   } catch (error) {
     console.error('Evaluation error:', error);
+    // Ensure we always return a valid JSON response
     return serverError({
       error: 'Failed to evaluate idea',
-      details: error instanceof Error ? error.message : 'Unknown error',
+      details: error instanceof Error ? error.message : String(error),
+      timestamp: new Date().toISOString(),
     });
   }
 }
