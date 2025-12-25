@@ -33,9 +33,10 @@ export interface EvaluationResponse {
  */
 export async function evaluateIdea(request: EvaluationRequest): Promise<EvaluationResponse> {
   try {
-    console.log('Sending evaluation request:', request);
+    console.log('Sending evaluation request to Wix backend:', request);
     
-    const response = await fetch('/api/evaluate', {
+    // Use the Wix backend function endpoint
+    const response = await fetch('/_functions/evaluate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -70,11 +71,18 @@ export async function evaluateIdea(request: EvaluationRequest): Promise<Evaluati
     console.log('Evaluation response:', data);
     
     // Validate response structure
-    if (!data.scores || !data.summary || !Array.isArray(data.strengths) || !Array.isArray(data.weaknesses) || !Array.isArray(data.recommendations)) {
+    if (!data.body) {
       throw new Error('Invalid response structure from server');
     }
     
-    return data;
+    // Parse the body if it's a string (Wix backend functions return wrapped responses)
+    const responseBody = typeof data.body === 'string' ? JSON.parse(data.body) : data.body;
+    
+    if (!responseBody.scores || !responseBody.summary || !Array.isArray(responseBody.strengths) || !Array.isArray(responseBody.weaknesses) || !Array.isArray(responseBody.recommendations)) {
+      throw new Error('Invalid response structure from server');
+    }
+    
+    return responseBody;
   } catch (error) {
     console.error('Evaluation error:', error);
     throw error;
