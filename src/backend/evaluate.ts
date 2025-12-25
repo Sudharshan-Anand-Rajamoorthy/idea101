@@ -249,67 +249,107 @@ function generateSummary(track: string, score: number): string {
  * Main evaluation handler
  */
 export async function post_evaluate(request: any) {
+  const startTime = Date.now();
+  console.log('=== BACKEND FUNCTION START ===');
+  console.log('Timestamp:', new Date().toISOString());
+  console.log('Request object type:', typeof request);
+  console.log('Request keys:', request ? Object.keys(request) : 'null');
+  
   try {
     // Validate request object exists
     if (!request) {
+      console.error('Request object is null or undefined');
       return badRequest({
         error: 'Invalid request object',
       });
     }
 
+    console.log('Request body type:', typeof request.body);
+    console.log('Request body length:', request.body ? String(request.body).length : 0);
+
     // Parse request body with error handling
     let body: any = {};
     try {
+      console.log('Attempting to parse request body...');
       if (request.body) {
         if (typeof request.body === 'string') {
+          console.log('Body is string, parsing JSON...');
           body = JSON.parse(request.body);
+          console.log('Successfully parsed JSON body');
         } else if (typeof request.body === 'object') {
+          console.log('Body is already object, using directly');
           body = request.body;
         }
       }
+      console.log('Parsed body keys:', Object.keys(body));
     } catch (parseError) {
       console.error('Request body parsing error:', parseError);
-      return badRequest({
+      const errorResponse = badRequest({
         error: 'Invalid JSON in request body',
         details: parseError instanceof Error ? parseError.message : 'Failed to parse request',
       });
+      console.log('Returning parse error response:', errorResponse);
+      return errorResponse;
     }
 
     const evaluationRequest: EvaluationRequest = body;
+    console.log('Evaluation request title:', evaluationRequest.title);
+    console.log('Evaluation request track:', evaluationRequest.track);
 
     // Validate required fields
     if (!evaluationRequest.title || typeof evaluationRequest.title !== 'string' || !evaluationRequest.title.trim()) {
+      console.error('Title validation failed');
       return badRequest({
         error: 'Missing or invalid required field: title',
       });
     }
 
     if (!evaluationRequest.description || typeof evaluationRequest.description !== 'string' || !evaluationRequest.description.trim()) {
+      console.error('Description validation failed');
       return badRequest({
         error: 'Missing or invalid required field: description',
       });
     }
 
     if (!evaluationRequest.track || !['startup', 'project', 'research', 'hackathon'].includes(evaluationRequest.track)) {
+      console.error('Track validation failed. Track value:', evaluationRequest.track);
       return badRequest({
         error: 'Missing or invalid required field: track (must be one of: startup, project, research, hackathon)',
       });
     }
 
+    console.log('All validations passed');
+
     // Attempt to use Hugging Face API (optional enhancement)
     try {
+      console.log('Attempting Hugging Face analysis...');
       await analyzeWithHuggingFace(evaluationRequest.description);
+      console.log('Hugging Face analysis completed');
     } catch (hfError) {
       console.warn('Hugging Face analysis failed, continuing with fallback:', hfError);
       // Continue execution - HF is optional
     }
 
     // Generate evaluation response
+    console.log('Generating scores...');
     const scores = generateScores(evaluationRequest, evaluationRequest.track);
+    console.log('Scores generated:', scores);
+
+    console.log('Generating strengths...');
     const strengths = generateStrengths(evaluationRequest, evaluationRequest.track);
+    console.log('Strengths generated:', strengths.length, 'items');
+
+    console.log('Generating weaknesses...');
     const weaknesses = generateWeaknesses(evaluationRequest, evaluationRequest.track);
+    console.log('Weaknesses generated:', weaknesses.length, 'items');
+
+    console.log('Generating recommendations...');
     const recommendations = generateRecommendations(evaluationRequest, evaluationRequest.track);
+    console.log('Recommendations generated:', recommendations.length, 'items');
+
+    console.log('Generating summary...');
     const summary = generateSummary(evaluationRequest.track, scores.overall);
+    console.log('Summary generated');
 
     const response: EvaluationResponse = {
       scores,
@@ -319,14 +359,44 @@ export async function post_evaluate(request: any) {
       recommendations,
     };
 
-    return ok(response);
+    console.log('Response object created successfully');
+    console.log('Response structure:', {
+      hasScores: !!response.scores,
+      hasSummary: !!response.summary,
+      strengthsCount: response.strengths.length,
+      weaknessesCount: response.weaknesses.length,
+      recommendationsCount: response.recommendations.length,
+    });
+
+    const okResponse = ok(response);
+    console.log('OK response created');
+    console.log('OK response type:', typeof okResponse);
+    console.log('OK response keys:', Object.keys(okResponse));
+    console.log('OK response status:', okResponse.status);
+    console.log('OK response headers:', okResponse.headers);
+    
+    const duration = Date.now() - startTime;
+    console.log(`=== BACKEND FUNCTION END (${duration}ms) ===`);
+    
+    return okResponse;
   } catch (error) {
-    console.error('Evaluation error:', error);
+    console.error('=== UNHANDLED ERROR IN BACKEND FUNCTION ===');
+    console.error('Error type:', error instanceof Error ? error.constructor.name : typeof error);
+    console.error('Error message:', error instanceof Error ? error.message : String(error));
+    console.error('Error stack:', error instanceof Error ? error.stack : 'N/A');
+    console.error('Full error object:', error);
+    
     // Ensure we always return a valid JSON response
-    return serverError({
+    const errorResponse = serverError({
       error: 'Failed to evaluate idea',
       details: error instanceof Error ? error.message : String(error),
       timestamp: new Date().toISOString(),
     });
+    
+    console.log('Error response created:', errorResponse);
+    const duration = Date.now() - startTime;
+    console.log(`=== BACKEND FUNCTION END WITH ERROR (${duration}ms) ===`);
+    
+    return errorResponse;
   }
 }
