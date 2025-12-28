@@ -1,3 +1,120 @@
+# Project description - **_IDEASCOPE_**
+This project is a web-based idea evaluation and decision-support engine that analyzes the novelty, feasibility, and potential of user-submitted ideas across multiple tracks such as startups, academic research, hackathons, and general projects.
+
+The system is designed as a decision engine, not a neural network. It relies on structured analysis, external data aggregation, and rule-based evaluation logic to help users understand whether an idea is original, market-relevant, and worth pursuing. A dedicated neural network is planned as a future enhancement to improve predictive accuracy and depth of analysis.
+
+# 🎯 Problem This Project Solves
+
+Early-stage founders, students, and researchers often struggle to answer key questions during ideation:
+Is this idea already widely implemented or researched?
+Who else is working on something similar?
+Is the field growing, saturated, or declining?
+How can this idea be refined to be more unique or niche?
+What factors could cause this idea to fail or succeed?
+Manual research across multiple platforms is time-consuming, fragmented, and often biased. This project centralizes and structures that analysis into a single evaluation workflow.
+
+# 🔍 How the System Works
+
+The evaluation pipeline follows a structured analysis flow:
+```bash
+User Idea
+   ↓
+Similar Startups / Projects / Research Papers
+   ↓
+Market & Trend Analysis
+   ↓
+News & Sentiment Analysis
+   ↓
+Novelty & Potential Scoring
+   ↓
+Refined / Niche Idea Suggestions
+```
+Each idea is evaluated within a track-specific model, ensuring relevant criteria and data sources are used.
+
+# 🧩 Core Features
+
+- **Idea Evaluation Engine** - Generates novelty and potential scores based on structured analysis.
+- **Track-Specific Analysis Models** (Separate evaluation logic for):
+   - Startups
+   - Academic / Research projects
+   - Hackathon ideas
+   - General technical projects
+
+- **Similarity & Overlap Detection (Planned)** (Designed to surface):
+   - Similar startups and products
+   - Related research papers
+   - GitHub repositories for hackathon and project ideas
+
+- **Trend & Market Analysis (Planned)**
+(Uses sources like Google Trends to assess):
+   - Market crowding
+   - Growth or decline of the idea’s domain
+ 
+- **News Sentiment Analysis (Planned)** - Analyzes recent news related to the idea’s field and explains how external events may impact success or failure.
+
+- **Idea Refinement & Niche Suggestions**
+(Suggests modifications to):
+   - Reduce overlap with existing solutions
+   - Narrow the scope into a more viable niche
+
+- **Failure & Success Indicators** - Explicitly highlights why an idea might fail and what factors could support its success.
+
+- **Hackathon Support** - Includes duration estimation logic when project timelines are not provided.
+
+# 🏗️ Architecture Overview
+The project follows a modular web application architecture with a clear separation of concerns:
+
+## Frontend
+- Built using modern web technologies (TypeScript + React-style components).
+- Handles:
+   - Idea input and validation
+   - Track selection
+   - Display of evaluation results
+   - User interaction and feedback
+
+## Backend (Currently Mocked)
+
+For rapid prototyping and development, the backend is currently implemented as a mock service layer.
+
+   - Implemented in:
+``` bash
+src/services/mockEvaluationBackend.ts
+```
+
+- **Responsibilities**:
+   - Simulates AI-style evaluation logic
+   - Generates:
+      - Scores
+      - Strengths
+      - Weaknesses
+      - Recommendations
+      - Contextual summaries
+- Applies deterministic logic based on input quality
+- Adds simulated network latency for realistic UX
+- Returns data in the exact format expected from a real backend
+
+This design ensures the frontend remains fully compatible with a future backend powered by real APIs, databases, or machine learning models.
+
+# 🔮 Future Enhancements
+
+- Integration with real data sources:
+   - Crunchbase, Wellfound, Product Hunt
+   - GitHub API for project and hackathon analysis
+   - Semantic Scholar, OpenAlex, arXiv for research analysis
+   - Google Trends and news APIs for trend and sentiment analysis
+- Introduction of a dedicated neural network to:
+   - Improve novelty detection
+   - Learn from historical outcomes
+   - Provide deeper predictive insights
+- Advanced idea comparison and clustering
+
+# 👥 Target Users
+
+- Startup founders and early-stage entrepreneurs
+- Hackathon participants
+- Undergraduate and final-year students
+- PhD and academic researchers exploring research directions
+
 # Wixstro - Wix Astro Template
 
 A modern, full-featured Wix Astro template built with React, TypeScript, and Tailwind CSS. This template provides a solid foundation for building dynamic, interactive websites with Wix's powerful ecosystem.
