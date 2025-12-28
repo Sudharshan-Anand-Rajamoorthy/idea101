@@ -46,10 +46,10 @@ export async function evaluateIdea(request: EvaluationRequest): Promise<Evaluati
   });
   
   try {
-    console.log('Fetching from /_functions/evaluate...');
+    console.log('Fetching from /_functions/post_evaluate...');
     
-    // Use the Wix backend function endpoint
-    const response = await fetch('/_functions/evaluate', {
+    // Use the Wix backend function endpoint (matches post_evaluate function name)
+    const response = await fetch('/_functions/post_evaluate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
