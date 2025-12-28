@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useEvaluationStore, type EvaluationTrack } from '@/store/evaluationStore';
 import { ArrowRight, Sparkles, ArrowLeft } from 'lucide-react';
-import { evaluateIdea } from '@/services/evaluationBackend';
+import { evaluateIdea } from '@/services/mockEvaluationBackend';
 
 const trackConfigs = {
   startup: {
