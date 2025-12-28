@@ -1,9 +1,9 @@
 /**
- * Wix Backend Function: evaluate
+ * Wix Backend Function: ideaEvaluation
  * Handles AI-powered evaluation of startup ideas, projects, research, and hackathon projects
  * Uses Hugging Face Inference API for text analysis
  * 
- * This function is exposed as POST /api/evaluate
+ * This function is exposed as POST /_functions/post_ideaEvaluation
  */
 
 // Response helpers for Wix backend functions
@@ -248,7 +248,7 @@ function generateSummary(track: string, score: number): string {
 /**
  * Main evaluation handler
  */
-export async function post_evaluate(request: any) {
+export async function post_ideaEvaluation(request: any) {
   console.log('=== BACKEND FUNCTION REACHED ===');
   console.log('Timestamp:', new Date().toISOString());
   
